@@ -62,11 +62,11 @@ void initAdc(){
   // Average control 1 sample, no right-shift
   REG_ADC_AVGCTRL |= ADC_AVGCTRL_SAMPLENUM_1;
   
-  // Sampling time, no extra sampling half clock-cycles
+  // Sampling time, no extra sampling half clock-cycles12
   REG_ADC_SAMPCTRL |= ADC_SAMPCTRL_SAMPLEN(0);
   ADCsync();
   
-  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV16 | ADC_CTRLB_FREERUN | ADC_CTRLB_RESSEL_12BIT;
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV4 | ADC_CTRLB_FREERUN | ADC_CTRLB_RESSEL_8BIT;
   ADCsync();
   
   ADC->CTRLA.bit.ENABLE = 0x01;
@@ -122,21 +122,21 @@ void startAdcSampling() {
     descriptors[0].descaddr = 0;//(uint32_t) &descriptors[1];
     descriptors[0].srcaddr = (uint32_t) &ADC->RESULT.reg;
     descriptors[0].btcnt =  BUFFER_SIZE;
-    descriptors[0].dstaddr = (uint32_t)buffers[0] + BUFFER_SIZE*2;  // end address
-    descriptors[0].btctrl =  DMAC_BTCTRL_BEATSIZE_HWORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
+    descriptors[0].dstaddr = (uint32_t)buffers[0] + BUFFER_SIZE;  // end address
+    descriptors[0].btctrl =  DMAC_BTCTRL_BEATSIZE_WORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
     memcpy(&descriptor_section[DMA_CHANNEL],&descriptors[0], sizeof(dmacdescriptor));
     for(uint32_t i=1;i<NUM_BUFFERS-1;i++){
     descriptors[i].descaddr = 0;//(uint32_t) &descriptors[i+1];
     descriptors[i].srcaddr = (uint32_t) &ADC->RESULT.reg;
     descriptors[i].btcnt =  BUFFER_SIZE;
-    descriptors[i].dstaddr = (uint32_t)buffers[i] + BUFFER_SIZE*2;   // end address
-    descriptors[i].btctrl =  DMAC_BTCTRL_BEATSIZE_HWORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
+    descriptors[i].dstaddr = (uint32_t)buffers[i] + BUFFER_SIZE;   // end address
+    descriptors[i].btctrl =  DMAC_BTCTRL_BEATSIZE_WORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
     }
     descriptors[NUM_BUFFERS-1].descaddr = 0;//(uint32_t) &descriptors[0];
     descriptors[NUM_BUFFERS-1].srcaddr = (uint32_t) &ADC->RESULT.reg;
     descriptors[NUM_BUFFERS-1].btcnt =  BUFFER_SIZE;
-    descriptors[NUM_BUFFERS-1].dstaddr = (uint32_t)buffers[NUM_BUFFERS-1] + BUFFER_SIZE*2;   // end address
-    descriptors[NUM_BUFFERS-1].btctrl =  DMAC_BTCTRL_BEATSIZE_HWORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
+    descriptors[NUM_BUFFERS-1].dstaddr = (uint32_t)buffers[NUM_BUFFERS-1] + BUFFER_SIZE;   // end address
+    descriptors[NUM_BUFFERS-1].btctrl =  DMAC_BTCTRL_BEATSIZE_WORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
 
     // start channel
     DMAC->CHID.reg = DMAC_CHID_ID(DMA_CHANNEL);
@@ -163,41 +163,34 @@ void sampleData(){
     Serial.println(completed_buffer);
 #endif
     
-    const uint16_t* buffer = buffers[completed_buffer];
+    const uint8_t* buffer = buffers[completed_buffer];
     dmadone = 0;
 #ifdef DEBUG_SERIAL
     Serial.print("Any value != 0 is success : ");
     Serial.println(buffer[2]);
 #endif
     for(int32_t i=0;i<BUFFER_SIZE;i++){
-      if(buffer[i] < TRIGGER_THRESHHOLD * 4096){
+      if(buffer[i] < TRIGGER_THRESHHOLD * 256){
 #ifdef DEBUG_SERIAL
         Serial.println("Trigger hit!");
 #endif
         transmitOnDescriptor = (i-1) % NUM_BUFFERS;
         descriptors[transmitOnDescriptor].descaddr = 0;
         digitalWrite(6, LOW);
-        break;
+
+        //send UDP out
+#ifdef DEBUG_SERIAL
+        Serial.println("Commencing transmission!");
+#endif
+        const uint32_t packetSize = 1000;
+        for(uint32_t i = 0;i<BUFFER_SIZE/packetSize;i++){
+          sendUdp(&buffer[i*packetSize], packetSize);
+        }
+        if(BUFFER_SIZE % packetSize > 0){
+          sendUdp(&buffer[BUFFER_SIZE/packetSize * packetSize], BUFFER_SIZE % packetSize);
+        }
+        return;
       }
     }
-  }
-
-  //send UDP out
-#ifdef DEBUG_SERIAL
-  Serial.println("Commencing transmission!");
-#endif
-  for(uint32_t i=transmitOnDescriptor;i<NUM_BUFFERS;i++){
-#ifdef DEBUG_SERIAL
-    Serial.print("Sending buffer : ");
-    Serial.println(i);
-#endif
-    sendUdp(buffers[i]);
-  }
-  for(uint32_t i=0;i<transmitOnDescriptor;i++){
-    sendUdp(buffers[i]);
-#ifdef DEBUG_SERIAL
-    Serial.print("Sending buffer : ");
-    Serial.println(i);
-#endif
   }
 }

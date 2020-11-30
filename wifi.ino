@@ -1,19 +1,11 @@
-//#define DEBUG_SERIAL
+#define DEBUG_SERIAL
 
 // Sample Buffers
-const uint32_t BUFFER_SIZE = 512;
-const uint32_t NUM_BUFFERS = 10;
-uint16_t b_1[BUFFER_SIZE],
-         b_2[BUFFER_SIZE],
-         b_3[BUFFER_SIZE],
-         b_4[BUFFER_SIZE],
-         b_5[BUFFER_SIZE],
-         b_6[BUFFER_SIZE],
-         b_7[BUFFER_SIZE],
-         b_8[BUFFER_SIZE],
-         b_9[BUFFER_SIZE],
-         b_10[BUFFER_SIZE];
-uint16_t* buffers[] = {b_1, b_2, b_3, b_4, b_5, b_6, b_7, b_8, b_9, b_10};
+const uint32_t BUFFER_SIZE = 12000;
+const uint32_t NUM_BUFFERS = 2;
+uint8_t b_1[BUFFER_SIZE],
+         b_2[BUFFER_SIZE];
+uint8_t* buffers[] = {b_1, b_2};
 
 const float TRIGGER_THRESHHOLD = 0.1;
 
@@ -36,9 +28,8 @@ void setup() {
 }
 
 void loop() {
-  // check the network connection once every 10 seconds:
-  delay(10000);
 #ifdef DEBUG_SERIAL
+  // check the network connection
   printCurrentNet();
 #endif
 
