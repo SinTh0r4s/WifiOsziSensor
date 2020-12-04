@@ -1,13 +1,13 @@
 #define DEBUG_SERIAL
 
 // Sample Buffers
-const uint32_t BUFFER_SIZE = 12000;
+const uint32_t BUFFER_SIZE = 10000;
 const uint32_t NUM_BUFFERS = 2;
 uint8_t b_1[BUFFER_SIZE],
          b_2[BUFFER_SIZE];
 uint8_t* buffers[] = {b_1, b_2};
 
-const float TRIGGER_THRESHHOLD = 0.1;
+const float TRIGGER_THRESHHOLD = 0.15;
 
 void setup() {
 #ifdef DEBUG_SERIAL

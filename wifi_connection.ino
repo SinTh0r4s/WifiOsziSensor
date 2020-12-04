@@ -2,13 +2,16 @@
 #include <WiFi101.h>
 #include <WiFiUdp.h>
 
-//char ssid[] = "SchadeDeutschland";     //  your network SSID (name)
-//char pass[] = "allesistvorbei";  // your network password
-char ssid[] = "Sinthospot";     //  your network SSID (name)
-char pass[] = "5c56a75bb0234";  // your network password
-int status = WL_IDLE_STATUS;     // the Wifi radio's status
+char ssid[] = "SchadeDeutschland";     //  your network SSID (name)
+char pass[] = "allesistvorbei";  // your network password
+IPAddress plotterIp(192,168,1,3);
 
-IPAddress plotterIp(192,168,43,134);
+//char ssid[] = "Sinthospot";     //  your network SSID (name)
+//char pass[] = "5c56a75bb0234";  // your network password
+//IPAddress plotterIp(192,168,43,134);
+
+
+int status = WL_IDLE_STATUS;     // the Wifi radio's status
 uint32_t plotterPort = 7567;
 uint32_t localPort = 12345;
 

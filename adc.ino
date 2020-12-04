@@ -66,7 +66,7 @@ void initAdc(){
   REG_ADC_SAMPCTRL |= ADC_SAMPCTRL_SAMPLEN(0);
   ADCsync();
   
-  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV4 | ADC_CTRLB_FREERUN | ADC_CTRLB_RESSEL_8BIT;
+  ADC->CTRLB.reg = ADC_CTRLB_PRESCALER_DIV16 | ADC_CTRLB_RESSEL_8BIT | ADC_CTRLB_FREERUN;
   ADCsync();
   
   ADC->CTRLA.bit.ENABLE = 0x01;
@@ -123,20 +123,20 @@ void startAdcSampling() {
     descriptors[0].srcaddr = (uint32_t) &ADC->RESULT.reg;
     descriptors[0].btcnt =  BUFFER_SIZE;
     descriptors[0].dstaddr = (uint32_t)buffers[0] + BUFFER_SIZE;  // end address
-    descriptors[0].btctrl =  DMAC_BTCTRL_BEATSIZE_WORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
+    descriptors[0].btctrl =  DMAC_BTCTRL_BEATSIZE_BYTE | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
     memcpy(&descriptor_section[DMA_CHANNEL],&descriptors[0], sizeof(dmacdescriptor));
     for(uint32_t i=1;i<NUM_BUFFERS-1;i++){
     descriptors[i].descaddr = 0;//(uint32_t) &descriptors[i+1];
     descriptors[i].srcaddr = (uint32_t) &ADC->RESULT.reg;
     descriptors[i].btcnt =  BUFFER_SIZE;
     descriptors[i].dstaddr = (uint32_t)buffers[i] + BUFFER_SIZE;   // end address
-    descriptors[i].btctrl =  DMAC_BTCTRL_BEATSIZE_WORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
+    descriptors[i].btctrl =  DMAC_BTCTRL_BEATSIZE_BYTE | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
     }
     descriptors[NUM_BUFFERS-1].descaddr = 0;//(uint32_t) &descriptors[0];
     descriptors[NUM_BUFFERS-1].srcaddr = (uint32_t) &ADC->RESULT.reg;
     descriptors[NUM_BUFFERS-1].btcnt =  BUFFER_SIZE;
     descriptors[NUM_BUFFERS-1].dstaddr = (uint32_t)buffers[NUM_BUFFERS-1] + BUFFER_SIZE;   // end address
-    descriptors[NUM_BUFFERS-1].btctrl =  DMAC_BTCTRL_BEATSIZE_WORD | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
+    descriptors[NUM_BUFFERS-1].btctrl =  DMAC_BTCTRL_BEATSIZE_BYTE | DMAC_BTCTRL_DSTINC | DMAC_BTCTRL_VALID;
 
     // start channel
     DMAC->CHID.reg = DMAC_CHID_ID(DMA_CHANNEL);
@@ -147,13 +147,26 @@ void sampleData(){
   bool skip = false; 
   int32_t transmitOnDescriptor = -1;
   completed_buffer = -1;
+  
+#ifdef DEBUG_SERIAL
+  uint32_t t = micros();
+#endif
+
   // fill DMA descriptors and start DMA
   startAdcSampling();
+
+#ifdef DEBUG_SERIAL
+    while(!dmadone);  // await DMA done with one buffer
+    t = micros() - t;
+    Serial.print("10k samples took ");
+    Serial.print(t);
+    Serial.println("usec");
+#endif
   
   digitalWrite(6, HIGH);  // Show ready status
   while (true){
     while(!dmadone);  // await DMA done with one buffer
-
+    
     if(transmitOnDescriptor == completed_buffer){break;}
 
 #ifdef DEBUG_SERIAL
