@@ -5,59 +5,72 @@ extern "C"{
 
 #include "Arduino.h"
 
+inline void LOG(const char* s)
+{
+#ifdef SERIAL_DEBUG
+    Serial.println(s);
+#endif
+}
+
 //Declare receive buffer 
 uint8 gmgmt[1600];
 
 //Callback functions
 void wifi_cb(uint8 u8WiFiEvent, void * pvMsg)
 {
-    ; 
+    LOG("Why is the normal callback used?");
 }
 void wifi_monitoring_cb(tstrM2MWifiRxPacketInfo *pstrWifiRxPacket, uint8 *pu8Payload, uint16 u16PayloadSize)
 {
     if((NULL != pstrWifiRxPacket) && (0 != u16PayloadSize)) {
         if(MANAGEMENT == pstrWifiRxPacket->u8FrameType) {
-            M2M_INFO("***# MGMT PACKET #***\n");
-            Serial.println("Management Packet");
+            LOG("Management Packet");
         } else if(DATA_BASICTYPE == pstrWifiRxPacket->u8FrameType) {
-            M2M_INFO("***# DATA PACKET #***\n");
-            Serial.println("Data Packet");
+            LOG("Data Packet");
         } else if(CONTROL == pstrWifiRxPacket->u8FrameType) {
-            M2M_INFO("***# CONTROL PACKET #***\n");
-            Serial.println("Control Packet");
+            LOG("Control Packet");
         }
     }
 }
 
-int main()
+void setup()
 {
+#ifdef SERIAL_DEBUG
     Serial.begin(115200);
-    Serial.println("Yaaaaay! :party:");
+    while(!Serial);
+#endif
+    LOG("Wifi custom driver test");
     //Register wifi_monitoring_cb 
     tstrWifiInitParam param;
     param.pfAppWifiCb = wifi_cb;
     param.pfAppMonCb  = wifi_monitoring_cb;
     
     // init Board Support Package
+    LOG("BSP init");
     nm_bsp_init();
     
+    LOG("WIFI init");
     if(!m2m_wifi_init(&param)) {
         //Enable Monitor Mode with filter to receive all data frames on channel 1
         tstrM2MWifiMonitorModeCtrl	strMonitorCtrl = {0};
         strMonitorCtrl.u8ChannelID		= M2M_WIFI_CH_ALL;
         strMonitorCtrl.u8FrameType		= DATA_BASICTYPE;  // M2M_WIFI_FRAME_TYPE_ANY
         strMonitorCtrl.u8FrameSubtype	= M2M_WIFI_FRAME_SUB_TYPE_ANY; //Receive any subtype of data frame
+        LOG("switch to monitoring mode");
         m2m_wifi_enable_monitoring_mode(&strMonitorCtrl, gmgmt, sizeof(gmgmt), 0);
-        
-        while(1) {
-            m2m_wifi_handle_events(NULL);
-        }
-
-        uint8 txBuffer[100];
-        uint16 headerLength = 14;
-        for(uint16 i = 0;i<14;i++)
-            txBuffer[i] = 0xFF;
-        m2m_wifi_send_wlan_pkt( txBuffer, headerLength, 100);
     }
-    return 0;
+}
+
+void loop()
+{
+    uint8 txBuffer[100];
+    uint16 headerLength = 14;
+    for(uint16 i = 0;i<14;i++)
+        txBuffer[i] = 0xFF;
+    LOG("Send marker packet");
+    m2m_wifi_send_wlan_pkt( txBuffer, headerLength, 100);
+    
+    while(1) {
+        m2m_wifi_handle_events(NULL);
+    }  
 }
