@@ -2,9 +2,9 @@
  *
  * \file
  *
- * \brief BSD compatible socket interface internal types.
+ * \brief BSD alike socket interface internal types.
  *
- * Copyright (c) 2016-2017 Atmel Corporation. All rights reserved.
+ * Copyright (c) 2015 Atmel Corporation. All rights reserved.
  *
  * \asf_license_start
  *
@@ -62,15 +62,11 @@ INCLUDES
 MACROS
 *=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*=*/
 
-/*
- *	HOSTNAME_MAX_SIZE is defined here and also in host_drv/socket/include/socket.h
- *	The two definitions must match.
-*/
 #ifdef _FIRMWARE_
-#define HOSTNAME_MAX_SIZE					(64)
+#define HOSTNAME_MAX_SIZE			(64)
 #endif
 
-#define SSL_MAX_OPT_LEN						HOSTNAME_MAX_SIZE
+#define SSL_MAX_OPT_LEN				HOSTNAME_MAX_SIZE
 
 
 
@@ -80,7 +76,7 @@ MACROS
 */
 
 
-#define SOCKET_CMD_BIND						0x41
+#define SOCKET_CMD_BIND					0x41
 /*!< 
 	Socket Binding command value.
 */
@@ -98,19 +94,19 @@ MACROS
 */
 
 
-#define SOCKET_CMD_CONNECT					0x44
+#define SOCKET_CMD_CONNECT				0x44
 /*!< 
 	Socket Connecting command value.
 */
 
 
-#define SOCKET_CMD_SEND						0x45
+#define SOCKET_CMD_SEND					0x45
 /*!< 
 	Socket send command value.
 */
 
 
-#define SOCKET_CMD_RECV						0x46
+#define SOCKET_CMD_RECV					0x46
 /*!< 
 	Socket Recieve command value.
 */
@@ -122,7 +118,7 @@ MACROS
 */
 
 
-#define SOCKET_CMD_RECVFROM					0x48
+#define SOCKET_CMD_RECVFROM				0x48
 /*!< 
 	Socket RecieveFrom command value.
 */
@@ -134,25 +130,25 @@ MACROS
 */
 
 
-#define SOCKET_CMD_DNS_RESOLVE				0x4A
+#define SOCKET_CMD_DNS_RESOLVE			0x4A
 /*!< 
 	Socket DNS Resolve command value.
 */
 
 
-#define SOCKET_CMD_SSL_CONNECT				0x4B
+#define SOCKET_CMD_SSL_CONNECT			0x4B
 /*!< 
 	SSL-Socket Connect command value.
 */
 
 
-#define SOCKET_CMD_SSL_SEND					0x4C	
+#define SOCKET_CMD_SSL_SEND				0x4C	
 /*!< 
 	SSL-Socket Send command value.
 */	
 
 
-#define SOCKET_CMD_SSL_RECV					0x4D
+#define SOCKET_CMD_SSL_RECV				0x4D
 /*!< 
 	SSL-Socket Recieve command value.
 */
@@ -176,31 +172,11 @@ MACROS
 
 
 #define SOCKET_CMD_SSL_SET_SOCK_OPT			0x51
-/*!<
-*/
 
 
 #define SOCKET_CMD_PING						0x52
-/*!<
-*/
-
 
 #define SOCKET_CMD_SSL_SET_CS_LIST			0x53
-/*!<
-	Recommend instead using @ref M2M_SSL_REQ_SET_CS_LIST and
-	associated response @ref M2M_SSL_RESP_SET_CS_LIST
-*/
-
-
-#define SOCKET_CMD_SSL_BIND					0x54
-/*!<
-*/
-
-
-#define SOCKET_CMD_SSL_EXP_CHECK			0x55
-/*!<
-*/
-
 
 
 #define PING_ERR_SUCCESS					0
@@ -245,9 +221,9 @@ typedef struct{
 */
 typedef struct{
 	tstrSockAddr	strAddr;
-	SOCKET			sock;
-	uint8			u8Void;
-	uint16			u16SessionID;
+	SOCKET		sock;
+	uint8		u8Void;
+	uint16		u16SessionID;
 }tstrBindCmd;
 
 
@@ -284,7 +260,7 @@ typedef struct{
 */
 typedef struct{
 	SOCKET		sock;
-	sint8		s8Status;
+	sint8			s8Status;
 	uint16		u16SessionID;
 }tstrListenReply;
 
@@ -296,11 +272,7 @@ typedef struct{
 	tstrSockAddr	strAddr;
 	SOCKET			sListenSock;
 	SOCKET			sConnectedSock;
-	uint16			u16AppDataOffset;
-	/*!<
-		In further packet send requests the host interface should put the user application
-		data at this offset in the allocated shared data packet.
-	*/
+	uint16			u16Void;
 }tstrAcceptReply;
 
 
@@ -341,7 +313,7 @@ typedef struct{
 	uint8			u8Void;
 	uint16			u16DataSize;
 	tstrSockAddr	strAddr;
-	uint16			u16SessionID;
+	uint16		u16SessionID;
 	uint16			u16Void;
 }tstrSendCmd;
 
@@ -378,7 +350,7 @@ typedef struct{
 @brief
 */
 typedef struct{
-	tstrSockAddr	strRemoteAddr;
+	tstrSockAddr		strRemoteAddr;
 	sint16			s16RecvStatus;
 	uint16			u16DataOffset;
 	SOCKET			sock;
@@ -438,21 +410,9 @@ typedef struct{
 }tstrPingReply;
 
 
-/*!
-@struct\
-	tstrSslCertExpSettings
-
-@brief	SSL Certificate Expiry Validation Settings
-
-@sa		tenuSslCertExpSettings
-*/
 typedef struct{
-	uint32	u32CertExpValidationOpt;
-	/*!<
-		See @tenuSslCertExpSettings for possible values.
-	*/
-}tstrSslCertExpSettings;
-
+	uint32	u32CsBMP;
+}tstrSslSetActiveCsList;
 
 #ifdef  __cplusplus
 }
