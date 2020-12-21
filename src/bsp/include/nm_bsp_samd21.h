@@ -42,10 +42,14 @@
 #ifndef _NM_BSP_SAMD21_H_
 #define _NM_BSP_SAMD21_H_
 
-#define NM_DEBUG			0
-#define NM_BSP_PRINTF
+#include <stdio.h>
+
+#define NM_DEBUG			1
+#define NM_BSP_PRINTF		printf
 
 #define CONF_WINC_USE_SPI	1
+#define CONF_WINC_DEBUG		1
+#define CONF_WINC_PRINTF	printf
 
 #define NM_EDGE_INTERRUPT	1
 
