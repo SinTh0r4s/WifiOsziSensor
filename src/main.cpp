@@ -1,8 +1,12 @@
 #define SERIAL_DEBUG 1
 
-
+// libs
 #include "Arduino.h"
 #include <WiFi101.h>
+#include <WiFiUdp.h>
+
+// local includes
+#include "secrets.h"
 
 
 inline void LOG(const char* s)
