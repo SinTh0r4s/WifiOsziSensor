@@ -1,14 +1,14 @@
 #pragma once
 
 // Please define your own SSID and PW here!
-//#define SSID      "your wifi SSID"
-//#define SSID_PWD  "your wifi password"
+//#define WIFI_SSID      "your wifi SSID"
+//#define WIFI_SSID_PWD  "your wifi password"
 
 /*
 FYI: Git is set up to ignore any changes to this file.
 Your WiFi password will not be uploaded to the repository
 */
 
-#if !defined(SSID) || !defined(SSID_PWD)
+#if !defined(WIFI_SSID) || !defined(WIFI_SSID_PWD)
 #error Please define your WiFi secrets first! (secrets.h)
 #endif
