@@ -16,9 +16,12 @@ uint32_t _ledState = LOW;
 inline void initLogging()
 {
     pinMode(LED_BUILTIN, OUTPUT);
+    setLedHigh();
     _logLevel = LogLevel::NONE;
 #ifdef SERIAL_DEBUG
     Serial.begin(115200);
+    // Halt execution until serial connection is established
+    while(!Serial);
 #endif
 }
 
