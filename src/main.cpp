@@ -11,26 +11,28 @@
 
 WiFiUDP Udp;
 uint8_t rxBuffer[ETHERNET_MAX_BUFFER_SIZE];
-uint8_t txBuffer[ETHERNET_MAX_BUFFER_SIZE];
 
 void setup()
 {
     initLogging();
     setLogLevel(LogLevel::TRACE);
 
-    while ( status != WL_CONNECTED)
+    int status = WL_IDLE_STATUS;
+    while(status != WL_CONNECTED)
     {
         logInfo("Attempting to connect to SSID: ");
-        logInfo(ssid);
+        logInfo(WIFI_SSID);
         // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-        status = WiFi.begin(ssid, pass);
+        status = WiFi.begin(WIFI_SSID, WIFI_SSID_PWD);
         // wait 10 seconds for connection:
-        delay(10000);
+        //delay(10000);
         // TODO: I don't like this delay. Maybe conside a while timeout not reached && connection not established?
     }
     logInfo("Connected to wifi");
-    printWiFiStatus();
-    logInfo("\nStarting connection to server...");
+    IPAddress ip = WiFi.localIP();
+    Serial.print("IP Address: ");
+    Serial.println(ip);
+    logInfo("Begin to listen");
     Udp.begin(LISTENING_PORT);
 }
 
@@ -47,8 +49,8 @@ void loop()
         if(len == packetSize)
             logTrace("Bytes read == packetSize");
         // send a reply, to the IP address and port that sent us the packet we received
-        Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-        Udp.write(ReplyBuffer);
-        Udp.endPacket();
+        //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
+        //Udp.write(txBuffer);
+        //Udp.endPacket();
     }
 }

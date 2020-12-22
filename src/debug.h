@@ -13,18 +13,6 @@ enum LogLevel : uint8_t
 LogLevel _logLevel = LogLevel::NONE;
 uint32_t _ledState = LOW;
 
-inline void initLogging()
-{
-    pinMode(LED_BUILTIN, OUTPUT);
-    setLedHigh();
-    _logLevel = LogLevel::NONE;
-#ifdef SERIAL_DEBUG
-    Serial.begin(115200);
-    // Halt execution until serial connection is established
-    while(!Serial);
-#endif
-}
-
 inline void setLedHigh()
 {
     digitalWrite(LED_BUILTIN, HIGH);
@@ -43,6 +31,18 @@ inline void toggleLed()
         setLedLow();
     else
         setLedHigh();
+}
+
+inline void initLogging()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    setLedHigh();
+    _logLevel = LogLevel::NONE;
+#ifdef SERIAL_DEBUG
+    Serial.begin(115200);
+    // Halt execution until serial connection is established
+    while(!Serial);
+#endif
 }
 
 inline void setLogLevel(LogLevel logLevel)
