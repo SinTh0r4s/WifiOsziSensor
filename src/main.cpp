@@ -1,4 +1,4 @@
-#define SERIAL_DEBUG 1
+#define SERIAL_DEBUG
 
 // libs
 #include "Arduino.h"
@@ -7,22 +7,12 @@
 
 // local includes
 #include "secrets.h"
+#include "debug.h"
 
-
-inline void LOG(const char* s)
-{
-#ifdef SERIAL_DEBUG
-    Serial.println(s);
-#endif
-}
 
 void setup()
 {
-    pinMode(LED_BUILTIN, OUTPUT);
-#ifdef SERIAL_DEBUG
-    Serial.begin(115200);
-    while(!Serial);
-#endif
+    initLogging();
 }
 
 void loop()

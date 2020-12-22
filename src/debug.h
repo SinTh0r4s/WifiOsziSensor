@@ -11,13 +11,35 @@ enum LogLevel : uint8_t
 };
 
 LogLevel _logLevel = LogLevel::NONE;
+uint32_t _ledState = LOW;
 
-inline void init_logging()
+inline void initLogging()
 {
+    pinMode(LED_BUILTIN, OUTPUT);
     _logLevel = LogLevel::NONE;
 #ifdef SERIAL_DEBUG
     Serial.begin(115200);
 #endif
+}
+
+inline void setLedHigh()
+{
+    digitalWrite(LED_BUILTIN, HIGH);
+    _ledState = HIGH;
+}
+
+inline void setLedLow()
+{
+    digitalWrite(LED_BUILTIN, LOW);
+    _ledState = LOW;
+}
+
+inline void toggleLed()
+{
+    if(_ledState)
+        setLedLow();
+    else
+        setLedHigh();
 }
 
 inline void setLogLevel(LogLevel logLevel)
@@ -28,6 +50,13 @@ inline void setLogLevel(LogLevel logLevel)
 inline void _log(const char* msg)
 {
 #ifdef SERIAL_DEBUG
+    Serial.print(msg);
+#endif
+}
+
+inline void _logln(const char* msg)
+{
+#ifdef SERIAL_DEBUG
     Serial.println(msg);
 #endif
 }
@@ -36,15 +65,66 @@ inline void logError(const char* msg)
 {
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::ERROR)
-        _log(strcat("ERROR : ", msg));
+    {
+        _log("ERROR : ");
+        _logln(msg);
+    }
 #endif
+    while(true)
+    {
+        setLedLow();
+        delay(1000);
+
+        // morse s
+        setLedHigh();
+        delay(100);
+        setLedLow();
+        delay(100);
+        setLedHigh();
+        delay(100);
+        setLedLow();
+        delay(100);
+        setLedHigh();
+        delay(100);
+        setLedLow();
+        delay(300);
+
+        //morse o
+        setLedHigh();
+        delay(300);
+        setLedLow();
+        delay(100);
+        setLedHigh();
+        delay(300);
+        setLedLow();
+        delay(100);
+        setLedHigh();
+        delay(300);
+        setLedLow();
+        delay(300);
+
+        // morse s
+        setLedHigh();
+        delay(100);
+        setLedLow();
+        delay(100);
+        setLedHigh();
+        delay(100);
+        setLedLow();
+        delay(100);
+        setLedHigh();
+        delay(100);
+    }
 }
 
 inline void logInfo(const char* msg)
 {
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::INFO)
-        _log(strcat("Info  : ", msg));
+    {
+        _log("Info  : ");
+        _logln(msg);
+    }
 #endif
 }
 
@@ -52,7 +132,10 @@ inline void logDebug(const char* msg)
 {
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::DEBUG)
-        _log(strcat("DEBUG : ", msg));
+    {
+        _log("DEBUG : ");
+        _logln(msg);
+    }
 #endif
 }
 
@@ -60,6 +143,9 @@ inline void logTrace(const char* msg)
 {
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::TRACE)
-        _log(strcat("TRACE : ", msg));
+    {
+        _log("TRACE : ");
+        _logln(msg);
+    }
 #endif
 }
