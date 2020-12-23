@@ -5,13 +5,15 @@ enum LogLevel : uint8_t
 {
     NONE = 0,
     ERROR = 1,
-    INFO = 2,
-    DEBUG = 3,
-    TRACE = 4
+    WARNING = 2,
+    INFO = 3,
+    DEBUG = 4,
+    TRACE = 5
 };
 
-LogLevel _logLevel = LogLevel::NONE;
-uint32_t _ledState = LOW;
+// implemented in debug.cpp
+extern LogLevel _logLevel;
+extern uint32_t _ledState;
 
 inline void setLedHigh()
 {
@@ -31,18 +33,6 @@ inline void toggleLed()
         setLedLow();
     else
         setLedHigh();
-}
-
-inline void initLogging()
-{
-    pinMode(LED_BUILTIN, OUTPUT);
-    setLedHigh();
-    _logLevel = LogLevel::NONE;
-#ifdef SERIAL_DEBUG
-    Serial.begin(115200);
-    // Halt execution until serial connection is established
-    while(!Serial);
-#endif
 }
 
 inline void setLogLevel(LogLevel logLevel)
@@ -69,7 +59,7 @@ inline void logError(const char* msg)
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::ERROR)
     {
-        _log("ERROR : ");
+        _log("ERROR  : ");
         _logln(msg);
     }
 #endif
@@ -120,12 +110,23 @@ inline void logError(const char* msg)
     }
 }
 
+inline void logWarning(const char* msg)
+{
+#ifdef SERIAL_DEBUG
+    if(_logLevel >= LogLevel::WARNING)
+    {
+        _log("Warning: ");
+        _logln(msg);
+    }
+#endif
+}
+
 inline void logInfo(const char* msg)
 {
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::INFO)
     {
-        _log("Info  : ");
+        _log("Info   : ");
         _logln(msg);
     }
 #endif
@@ -136,7 +137,7 @@ inline void logDebug(const char* msg)
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::DEBUG)
     {
-        _log("DEBUG : ");
+        _log("DEBUG  : ");
         _logln(msg);
     }
 #endif
@@ -147,8 +148,27 @@ inline void logTrace(const char* msg)
 #ifdef SERIAL_DEBUG
     if(_logLevel >= LogLevel::TRACE)
     {
-        _log("TRACE : ");
+        _log("TRACE  : ");
         _logln(msg);
     }
 #endif
+}
+
+inline void startInit()
+{
+    pinMode(LED_BUILTIN, OUTPUT);
+    setLedHigh();
+    _logLevel = LogLevel::NONE;
+#ifdef SERIAL_DEBUG
+    Serial.begin(115200);
+    // Halt execution until serial connection is established
+    while(!Serial);
+#endif
+    logTrace("Serial connection established");
+}
+
+inline void endInit()
+{
+    logTrace("Init complete!");
+    setLedLow();
 }
