@@ -10,3 +10,4 @@ void Network_handleEvents();
 void Network_connectWifi();
 void Network_init();
 void Network_beginListen();
+void Network_sendSamples(uint8_t* samples, uint32_t numSamples);

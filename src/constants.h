@@ -13,6 +13,7 @@ static const uint8_t BOARD_CHANNELS = 1;
 static const uint32_t BOARD_LISTENING_PORT = 7567;
 static const uint32_t BEACON_LISTENING_PORT = 7567;
 static const uint32_t BEACON_SEPARATION_TIME = 1000;    // in msec
+static const uint32_t SAMPLES_PER_PACKET = 1024;
 
 
 // Random constants

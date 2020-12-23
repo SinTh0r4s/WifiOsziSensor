@@ -16,8 +16,9 @@ void sendBeacon();
 // Parse received packet and, if successful, invoke setTrigger()
 void parsePacket();
 
-// Global Beacon instance to provide a filled struct at will
-Beacon beaconBlueprint;
+// Global Header instances to provide a prefilled struct at will
+BeaconHeader beaconBlueprint;
+SampleTransmissionHeader sampleTransmissionBlueprint;
 // Timestamp of last Beacon transmission
 uint32_t lastBeaconTransmissionMillis = 0;
 // Which ip to send data to
@@ -46,6 +47,15 @@ void Network_init()
     beaconBlueprint.resolution = 8;
     beaconBlueprint.sampleTime = ((float)beaconBlueprint.frequency) / ((float)beaconBlueprint.numSamples);
     beaconBlueprint.port = BOARD_LISTENING_PORT;
+
+    sampleTransmissionBlueprint.magicNumber = MAGIC_ID;
+    sampleTransmissionBlueprint.frameId = 0;
+    sampleTransmissionBlueprint.numFrames = 1;
+    sampleTransmissionBlueprint.resolution = 8;
+    sampleTransmissionBlueprint.channels = BOARD_CHANNELS;
+    sampleTransmissionBlueprint.frequency = 100000;
+    sampleTransmissionBlueprint.v_ref = 1650;
+    sampleTransmissionBlueprint.numSamples = 1000;
 }
 
 void Network_handleEvents()
@@ -93,14 +103,14 @@ void Network_beginListen()
 void sendBeacon()
 {
     Udp.beginPacket(BROADCAST_IP, BEACON_LISTENING_PORT);
-    Udp.write((uint8_t*)&beaconBlueprint, sizeof(Beacon));
+    Udp.write((uint8_t*)&beaconBlueprint, sizeof(BeaconHeader));
     Udp.endPacket();
     logTrace("Beacon send");
 }
 
 void parsePacket()
 {
-    Command* command = (Command*)&rxBuffer;
+    CommandHeader* command = (CommandHeader*)&rxBuffer;
     logTrace("magicNumber");
     if(command->magicNumber != MAGIC_ID)
     {
@@ -116,10 +126,37 @@ void parsePacket()
     }
 
     logDebug("Received valig command. Applying settings...");
-    TriggerSetting* triggerSetting = (TriggerSetting*)(command+1);
+    TriggerSettingHeader* triggerSetting = (TriggerSettingHeader*)(command+1);
     for(uint32_t i=0;i<command->numSettings;i++)
     {
-        const TriggerSetting ts = triggerSetting[i];
+        const TriggerSettingHeader ts = triggerSetting[i];
         _setTriggerCallback(ts.channel, ts.active, ts.triggerVoltage);
     }
+}
+
+void Network_sendSamples(uint8_t* samples, uint32_t numSamples)
+{
+    logDebug("Transmitting samples...");
+    const uint32_t numFullFrames = numSamples / SAMPLES_PER_PACKET;
+    const uint32_t remainder = numSamples % SAMPLES_PER_PACKET;
+    if(remainder > 0)
+        sampleTransmissionBlueprint.numFrames = numFullFrames + 1;
+
+    for(uint32_t frameId=0;frameId<numFullFrames;frameId++)
+    {
+        Udp.beginPacket(responseTargetIp, responseTargetPort);
+        sampleTransmissionBlueprint.frameId = frameId;
+        Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
+        Udp.write(&samples[frameId * SAMPLES_PER_PACKET], SAMPLES_PER_PACKET);
+        Udp.endPacket();
+    }
+    if(remainder > 0)
+    {
+        Udp.beginPacket(responseTargetIp, responseTargetPort);
+        sampleTransmissionBlueprint.frameId = numFullFrames;
+        Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
+        Udp.write(&samples[numFullFrames * SAMPLES_PER_PACKET], remainder);
+        Udp.endPacket();
+    }
+    logDebug("Samples transmitted.");
 }
