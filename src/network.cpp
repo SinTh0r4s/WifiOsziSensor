@@ -40,21 +40,21 @@ void Network_init()
     beaconBlueprint.magicNumber = MAGIC_ID;
     strcpy(beaconBlueprint.model, BOARD_DESCRIPTION);
     strcpy(beaconBlueprint.adc, BOARD_ADC_DESCRIPTION);
-    beaconBlueprint.v_ref = 1650;
+    beaconBlueprint.v_ref = BOARD_V_REF;
     beaconBlueprint.channels = BOARD_CHANNELS;
     beaconBlueprint.frequency = 100000;
     beaconBlueprint.numSamples = 10000;
-    beaconBlueprint.resolution = 8;
+    beaconBlueprint.resolution = BOARD_RESOLUTION;
     beaconBlueprint.sampleTime = ((float)beaconBlueprint.frequency) / ((float)beaconBlueprint.numSamples);
     beaconBlueprint.port = BOARD_LISTENING_PORT;
 
     sampleTransmissionBlueprint.magicNumber = MAGIC_ID;
     sampleTransmissionBlueprint.frameId = 0;
     sampleTransmissionBlueprint.numFrames = 1;
-    sampleTransmissionBlueprint.resolution = 8;
+    sampleTransmissionBlueprint.resolution = BOARD_RESOLUTION;
     sampleTransmissionBlueprint.channels = BOARD_CHANNELS;
     sampleTransmissionBlueprint.frequency = 100000;
-    sampleTransmissionBlueprint.v_ref = 1650;
+    sampleTransmissionBlueprint.v_ref = BOARD_V_REF;
     sampleTransmissionBlueprint.numSamples = 1000;
 }
 
@@ -134,7 +134,7 @@ void parsePacket()
     }
 }
 
-void Network_sendSamples(uint8_t* samples, uint32_t numSamples)
+void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
 {
     logDebug("Transmitting samples...");
     const uint32_t numFullFrames = numSamples / SAMPLES_PER_PACKET;
@@ -149,6 +149,8 @@ void Network_sendSamples(uint8_t* samples, uint32_t numSamples)
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
         Udp.write(&samples[frameId * SAMPLES_PER_PACKET], SAMPLES_PER_PACKET);
         Udp.endPacket();
+        // TODO: consider short delay(xxx) to ensure the previous packet has been dealt with
+        // Could get memory overflow here otherwise
     }
     if(remainder > 0)
     {
