@@ -19,6 +19,7 @@ void setup()
     startInit();
     setLogLevel(LogLevel::TRACE);
 
+    Network_init();
     Network_connectWifi();
     Network_registerSetTriggerCallback(setTrigger);
     Network_beginListen();

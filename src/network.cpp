@@ -7,11 +7,14 @@
 #include "debug.h"
 #include "constants.h"
 #include "secrets.h"
+#include "networkStructs.h"
 
 
 // Send a network message to advertise this devise and its properties
 void sendBeacon();
 
+Beacon beaconBlueprint;
+uint32_t lastBeaconTransmissionMillis = 0;
 setTriggerCallback _setTriggerCallback;
 WiFiUDP Udp;
 uint8_t rxBuffer[ETHERNET_MAX_BUFFER_SIZE];
@@ -19,6 +22,20 @@ uint8_t rxBuffer[ETHERNET_MAX_BUFFER_SIZE];
 void Network_registerSetTriggerCallback(setTriggerCallback _cb)
 {
     _setTriggerCallback = _cb;
+}
+
+void Network_init()
+{
+    beaconBlueprint.magicNumber = MAGIC_ID;
+    strcpy(beaconBlueprint.model, BOARD_DESCRIPTION);
+    strcpy(beaconBlueprint.adc, ADC_DESCRIPTION);
+    beaconBlueprint.v_ref = 1650;
+    beaconBlueprint.channels = 1;
+    beaconBlueprint.frequency = 100000;
+    beaconBlueprint.numSamples = 10000;
+    beaconBlueprint.resolution = 8;
+    beaconBlueprint.sampleTime = ((float)beaconBlueprint.frequency) / ((float)beaconBlueprint.numSamples);
+    beaconBlueprint.port = BOARD_LISTENING_PORT;
 }
 
 void Network_handleEvents()
@@ -34,9 +51,13 @@ void Network_handleEvents()
         if(len == packetSize)
             logTrace("Bytes read == packetSize");
         // send a reply, to the IP address and port that sent us the packet we received
-        //Udp.beginPacket(Udp.remoteIP(), Udp.remotePort());
-        //Udp.write(txBuffer);
-        //Udp.endPacket();
+    }
+
+    const uint32_t currentMillis = millis();
+    if(currentMillis - BEACON_SEPARATION_TIME > lastBeaconTransmissionMillis)
+    {
+        sendBeacon();
+        lastBeaconTransmissionMillis = currentMillis;
     }
 }
 
@@ -58,6 +79,13 @@ void Network_connectWifi()
 
 void Network_beginListen()
 {
-    Udp.begin(LISTENING_PORT);
+    Udp.begin(BOARD_LISTENING_PORT);
     logTrace("Begin to listen");
+}
+
+void sendBeacon()
+{
+    Udp.beginPacket(BROADCAST_IP, UI_LISTENING_PORT);
+    Udp.write((uint8_t*)&beaconBlueprint, sizeof(Beacon));
+    Udp.endPacket();
 }
