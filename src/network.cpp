@@ -13,10 +13,20 @@
 // Send a network message to advertise this devise and its properties
 void sendBeacon();
 
+// Parse received packet and, if successful, invoke setTrigger()
+void parsePacket();
+
+// Global Beacon instance to provide a filled struct at will
 Beacon beaconBlueprint;
+// Timestamp of last Beacon transmission
 uint32_t lastBeaconTransmissionMillis = 0;
+// Which ip to send data to
+IPAddress responseTargetIp;
+// Which port to send data to
+uint32_t responseTargetPort = 0;
 setTriggerCallback _setTriggerCallback;
 WiFiUDP Udp;
+// Buffer for received ethernet frames
 uint8_t rxBuffer[ETHERNET_MAX_BUFFER_SIZE];
 
 void Network_registerSetTriggerCallback(setTriggerCallback _cb)
@@ -28,9 +38,9 @@ void Network_init()
 {
     beaconBlueprint.magicNumber = MAGIC_ID;
     strcpy(beaconBlueprint.model, BOARD_DESCRIPTION);
-    strcpy(beaconBlueprint.adc, ADC_DESCRIPTION);
+    strcpy(beaconBlueprint.adc, BOARD_ADC_DESCRIPTION);
     beaconBlueprint.v_ref = 1650;
-    beaconBlueprint.channels = 1;
+    beaconBlueprint.channels = BOARD_CHANNELS;
     beaconBlueprint.frequency = 100000;
     beaconBlueprint.numSamples = 10000;
     beaconBlueprint.resolution = 8;
@@ -43,14 +53,11 @@ void Network_handleEvents()
     int packetSize = Udp.parsePacket();
     if (packetSize > 0)
     {
-        logDebug("Received packet");
-        // read the packet into packetBufffer
+        logTrace("Received packet");
         int len = Udp.read(rxBuffer, ETHERNET_MAX_BUFFER_SIZE);
-        if(len > 0)
-            logTrace("Buffer read successfully");
-        if(len == packetSize)
-            logTrace("Bytes read == packetSize");
-        // send a reply, to the IP address and port that sent us the packet we received
+        if(len != packetSize)
+            logError("Could not read packet!");
+        parsePacket();
     }
 
     const uint32_t currentMillis = millis();
@@ -85,7 +92,34 @@ void Network_beginListen()
 
 void sendBeacon()
 {
-    Udp.beginPacket(BROADCAST_IP, UI_LISTENING_PORT);
+    Udp.beginPacket(BROADCAST_IP, BEACON_LISTENING_PORT);
     Udp.write((uint8_t*)&beaconBlueprint, sizeof(Beacon));
     Udp.endPacket();
+    logTrace("Beacon send");
+}
+
+void parsePacket()
+{
+    Command* command = (Command*)&rxBuffer;
+    logTrace("magicNumber");
+    if(command->magicNumber != MAGIC_ID)
+    {
+        logTrace("Received packet is not part of this project. Discarding...");
+        return;
+    }
+    responseTargetPort = command->port;
+
+    if(_setTriggerCallback == NULL)
+    {
+        logWarning("No callback is set!");
+        return;
+    }
+
+    logDebug("Received valig command. Applying settings...");
+    TriggerSetting* triggerSetting = (TriggerSetting*)(command+1);
+    for(uint32_t i=0;i<command->numSettings;i++)
+    {
+        const TriggerSetting ts = triggerSetting[i];
+        _setTriggerCallback(ts.channel, ts.active, ts.triggerVoltage);
+    }
 }

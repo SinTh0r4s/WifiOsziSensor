@@ -9,7 +9,7 @@
 
 void setTrigger(uint8_t _channel, bool _active, uint32_t _mV)
 {
-    if(_channel != 1)
+    if(_channel > BOARD_CHANNELS)
         return;
     logWarning("setTrigger() not implemented yet!");
 }

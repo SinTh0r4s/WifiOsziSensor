@@ -6,11 +6,12 @@
 
 // Board settings
 static const char* BOARD_DESCRIPTION = "Arduino MKR1000";
-static const char* ADC_DESCRIPTION = "integrated";
+static const char* BOARD_ADC_DESCRIPTION = "integrated";
+static const uint8_t BOARD_CHANNELS = 1;
 
 // General settings
 static const uint32_t BOARD_LISTENING_PORT = 7567;
-static const uint32_t UI_LISTENING_PORT = 7567;
+static const uint32_t BEACON_LISTENING_PORT = 7567;
 static const uint32_t BEACON_SEPARATION_TIME = 1000;    // in msec
 
 
