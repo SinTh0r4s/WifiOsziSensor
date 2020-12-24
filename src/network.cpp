@@ -42,6 +42,7 @@ void Network_init()
     strcpy(beaconBlueprint.adc, BOARD_ADC_DESCRIPTION);
     beaconBlueprint.v_ref = BOARD_V_REF;
     beaconBlueprint.channels = BOARD_CHANNELS;
+    beaconBlueprint.beaconId = 0;
     beaconBlueprint.frequency = 100000;
     beaconBlueprint.numSamples = 10000;
     beaconBlueprint.resolution = BOARD_RESOLUTION;
@@ -51,6 +52,7 @@ void Network_init()
     sampleTransmissionBlueprint.magicNumber = MAGIC_ID;
     sampleTransmissionBlueprint.frameId = 0;
     sampleTransmissionBlueprint.numFrames = 1;
+    sampleTransmissionBlueprint.transmissionGroupId = 0;
     sampleTransmissionBlueprint.resolution = BOARD_RESOLUTION;
     sampleTransmissionBlueprint.channels = BOARD_CHANNELS;
     sampleTransmissionBlueprint.frequency = 100000;
@@ -102,6 +104,7 @@ void Network_beginListen()
 
 void sendBeacon()
 {
+    beaconBlueprint.beaconId = (beaconBlueprint.beaconId + 1) % 0x100;
     Udp.beginPacket(BROADCAST_IP, BEACON_LISTENING_PORT);
     Udp.write((uint8_t*)&beaconBlueprint, sizeof(BeaconHeader));
     Udp.endPacket();
@@ -137,6 +140,7 @@ void parsePacket()
 void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
 {
     logDebug("Transmitting samples...");
+    sampleTransmissionBlueprint.transmissionGroupId = (sampleTransmissionBlueprint.transmissionGroupId + 1) % 0x100;
     const uint32_t numFullFrames = numSamples / SAMPLES_PER_PACKET;
     const uint32_t remainder = numSamples % SAMPLES_PER_PACKET;
     if(remainder > 0)
