@@ -123,6 +123,7 @@ void parsePacket()
         return;
     }
     responseTargetPort = command->port;
+    responseTargetIp = Udp.remoteIP();
 
     if(_setTriggerCallback == NULL)
     {
@@ -142,16 +143,20 @@ void parsePacket()
 void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
 {
     logDebug("Transmitting samples...");
+    Serial.println(responseTargetIp);
     sampleTransmissionBlueprint.transmissionGroupId = (sampleTransmissionBlueprint.transmissionGroupId + 1) % 0x100;
     const uint32_t numFullFrames = numSamples / SAMPLES_PER_PACKET;
+    sampleTransmissionBlueprint.numFrames = numFullFrames;
     const uint32_t remainder = numSamples % SAMPLES_PER_PACKET;
     if(remainder > 0)
-        sampleTransmissionBlueprint.numFrames = numFullFrames + 1;
+        sampleTransmissionBlueprint.numFrames++;
 
     for(uint32_t frameId=0;frameId<numFullFrames;frameId++)
     {
+        logTrace("Begin packet");
         Udp.beginPacket(responseTargetIp, responseTargetPort);
         sampleTransmissionBlueprint.frameId = frameId;
+        sampleTransmissionBlueprint.numSamples = SAMPLES_PER_PACKET;
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
         Udp.write(&samples[frameId * SAMPLES_PER_PACKET], SAMPLES_PER_PACKET);
         Udp.endPacket();
@@ -160,8 +165,10 @@ void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
     }
     if(remainder > 0)
     {
+        logTrace("Begin packet");
         Udp.beginPacket(responseTargetIp, responseTargetPort);
         sampleTransmissionBlueprint.frameId = numFullFrames;
+        sampleTransmissionBlueprint.numSamples = remainder;
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
         Udp.write(&samples[numFullFrames * SAMPLES_PER_PACKET], remainder);
         Udp.endPacket();
