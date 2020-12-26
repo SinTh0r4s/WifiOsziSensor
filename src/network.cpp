@@ -91,9 +91,11 @@ void Network_connectWifi()
         status = WiFi.begin(WIFI_SSID, WIFI_SSID_PWD);
     }
     logInfo("Connected to wifi");
-    /*IPAddress ip = WiFi.localIP();
-    Serial.print("IP Address: ");
-    Serial.println(ip);*/
+
+    // MAC is only available after init of WiFi module, which is integrated in WiFi.begin
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+    beaconBlueprint.uid = (mac[1] << 8) + mac[0];
 }
 
 void Network_beginListen()
