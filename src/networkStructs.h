@@ -12,7 +12,6 @@ struct __attribute__((__packed__)) BeaconHeader
     char adc[30];               // string description with 30 characters max
     uint32_t frequency;         // in Hz
     uint32_t numSamples;        // simple counter
-    float sampleTime;           // in sec
     uint32_t v_ref;             // in mV
     uint32_t port;              // UDP Port of board
     uint16_t uid;               // Unique ID to distinguish identical boards. Last two bytes from MAC address

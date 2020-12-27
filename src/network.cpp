@@ -46,7 +46,6 @@ void Network_init()
     beaconBlueprint.frequency = 100000;
     beaconBlueprint.numSamples = 10000;
     beaconBlueprint.resolution = BOARD_RESOLUTION;
-    beaconBlueprint.sampleTime = ((float)beaconBlueprint.frequency) / ((float)beaconBlueprint.numSamples);
     beaconBlueprint.port = BOARD_LISTENING_PORT;
 
     sampleTransmissionBlueprint.magicNumber = MAGIC_ID;
