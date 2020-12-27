@@ -38,4 +38,5 @@ struct __attribute__((__packed__)) SampleTransmissionHeader
     uint32_t frequency;         // in Hz
     uint32_t v_ref;             // in mV
     uint32_t numSamples;        // simple counter
+    uint16_t uid;               // Unique ID to distinguish identical boards. Last two bytes from MAC address
 };

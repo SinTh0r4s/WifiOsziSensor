@@ -96,6 +96,7 @@ void Network_connectWifi()
     uint8_t mac[6];
     WiFi.macAddress(mac);
     beaconBlueprint.uid = (mac[1] << 8) + mac[0];
+    sampleTransmissionBlueprint.uid = beaconBlueprint.uid;
 }
 
 void Network_beginListen()
