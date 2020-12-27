@@ -132,12 +132,7 @@ void parsePacket()
     }
 
     logDebug("Received valig command. Applying settings...");
-    TriggerSettingHeader* triggerSetting = (TriggerSettingHeader*)(command+1);
-    for(uint32_t i=0;i<command->numSettings;i++)
-    {
-        const TriggerSettingHeader ts = triggerSetting[i];
-        _setTriggerCallback(ts.channel, ts.active, ts.triggerVoltage);
-    }
+    _setTriggerCallback(command->channel, command->active, command->triggerVoltage);
 }
 
 void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)

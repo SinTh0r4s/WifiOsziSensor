@@ -21,15 +21,10 @@ struct __attribute__((__packed__)) BeaconHeader
 struct __attribute__((__packed__)) CommandHeader
 {
     uint16_t magicNumber;       // 0x7567 to distinguish from random UDP traffic that might hit that port
-    uint32_t port;              // which port to reply to
-    uint8_t numSettings;        // how many settings are supplied
-};
-
-struct __attribute__((__packed__)) TriggerSettingHeader
-{
     uint8_t channel;            // which channel these settings are valid
-    uint32_t triggerVoltage;    // in mV
     uint8_t active;             // boolean, 0 = off, 1 = on
+    uint32_t triggerVoltage;    // in mV
+    uint32_t port;              // which port to reply to
 };
 
 struct __attribute__((__packed__)) SampleTransmissionHeader
