@@ -138,7 +138,6 @@ void parsePacket()
 void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
 {
     logDebug("Transmitting samples...");
-    Serial.println(responseTargetIp);
     sampleTransmissionBlueprint.transmissionGroupId = (sampleTransmissionBlueprint.transmissionGroupId + 1) % 0x100;
     const uint32_t numFullFrames = numSamples / SAMPLES_PER_PACKET;
     sampleTransmissionBlueprint.numFrames = numFullFrames;
