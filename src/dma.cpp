@@ -221,6 +221,7 @@ void mDMA::handleEvents()
         }
         mNetwork::sendFragmentedSamples(buffers[0], ADC_NUM_BUFFERS * ADC_BUFFER_SIZE);
         dataWasSent = true;
+        resume();
     }
 }
 

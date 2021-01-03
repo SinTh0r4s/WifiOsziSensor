@@ -16,8 +16,9 @@ void setup()
 
     mADC::init();
     mDMA::init();
-    
     mNetwork::init();
+    
+    mDMA::start();
     mNetwork::connectWifi();
     mNetwork::beginListen();
 
@@ -27,5 +28,6 @@ void setup()
 void loop()
 {
     mNetwork::handleEvents();
+    mDMA::handleEvents();
     mADC::handleEvents();
 }

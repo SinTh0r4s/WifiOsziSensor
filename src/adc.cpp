@@ -63,7 +63,8 @@ void mADC::init()
     while (ADC->STATUS.bit.SYNCBUSY == 1);
 }
 
-uint32_t _triggerValue = 0;
+uint32_t triggerValue = 0;
+bool triggerActive = false;
 
 void mADC::setTrigger(uint8_t _channel, bool _active, uint32_t _mV)
 {
@@ -78,8 +79,9 @@ void mADC::setTrigger(uint8_t _channel, bool _active, uint32_t _mV)
         return;
     }
     const uint32_t maxSampleValue = (1<<BOARD_RESOLUTION)-1;
-    _triggerValue = (maxSampleValue * _mV) / BOARD_V_REF;
-    
+    triggerValue = (maxSampleValue * _mV) / BOARD_V_REF;
+    triggerActive = _active;
+
     mDMA::resume();
 }
 
@@ -87,31 +89,31 @@ uint8_t* lastBuffer = nullptr;
 
 void mADC::handleEvents()
 {
-    mDMA::handleEvents();
-
     uint8_t* buffer = mDMA::getLastCompletedBuffer();
-    if(buffer == nullptr || buffer == lastBuffer)
+    if(buffer == nullptr || buffer == lastBuffer || !triggerActive)
     {
         return;
     }
     lastBuffer = buffer;
 
     logTrace("Checking buffer");
-    if(buffer[0] < _triggerValue)
+    if(buffer[0] < triggerValue)
     {
         for(uint32_t i=0;i<ADC_BUFFER_SIZE;i++)
-            if(buffer[i] >= _triggerValue)
+            if(buffer[i] >= triggerValue)
             {
                 mDMA::triggerHit();
+                triggerActive = false;
                 return;
             }
     }
     else
     {
         for(uint32_t i=0;i<ADC_BUFFER_SIZE;i++)
-            if(buffer[i] <= _triggerValue)
+            if(buffer[i] <= triggerValue)
             {
                 mDMA::triggerHit();
+                triggerActive = false;
                 return;
             }
     }
