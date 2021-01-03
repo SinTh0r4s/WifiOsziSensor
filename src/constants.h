@@ -9,7 +9,8 @@ static const char* BOARD_DESCRIPTION = "Arduino MKR1000";
 static const char* BOARD_ADC_DESCRIPTION = "integrated";
 static const uint8_t BOARD_CHANNELS = 1;
 static const uint32_t DMA_CHANNEL = 0;
-static const uint32_t ADC_BUFFER_SIZE = 10240;
+static const uint32_t ADC_BUFFER_SIZE = 7000;
+static const uint32_t ADC_NUM_BUFFERS = 3;
 static const uint8_t BOARD_RESOLUTION = 8;
 static const uint32_t BOARD_V_REF = 1650;
 

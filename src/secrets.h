@@ -1,8 +1,8 @@
 #pragma once
 
 // Please define your own SSID and PW here!
-//#define WIFI_SSID      "your wifi SSID"
-//#define WIFI_SSID_PWD  "your wifi password"
+#define WIFI_SSID      "SchadeDeutschland"
+#define WIFI_SSID_PWD  "allesistvorbei"
 
 /*
 FYI: Git is set up to ignore any changes to this file.

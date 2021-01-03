@@ -8,6 +8,7 @@
 #include "constants.h"
 #include "secrets.h"
 #include "networkStructs.h"
+#include "adc.h"
 
 
 // Send a network message to advertise this devise and its properties
@@ -25,17 +26,11 @@ uint32_t lastBeaconTransmissionMillis = 0;
 IPAddress responseTargetIp;
 // Which port to send data to
 uint32_t responseTargetPort = 0;
-setTriggerCallback _setTriggerCallback;
 WiFiUDP Udp;
 // Buffer for received ethernet frames
 uint8_t rxBuffer[ETHERNET_MAX_BUFFER_SIZE];
 
-void Network_registerSetTriggerCallback(setTriggerCallback _cb)
-{
-    _setTriggerCallback = _cb;
-}
-
-void Network_init()
+void mNetwork::init()
 {
     beaconBlueprint.magicNumber = MAGIC_ID;
     strcpy(beaconBlueprint.model, BOARD_DESCRIPTION);
@@ -44,7 +39,7 @@ void Network_init()
     beaconBlueprint.channels = BOARD_CHANNELS;
     beaconBlueprint.beaconId = 0;
     beaconBlueprint.frequency = 100000;
-    beaconBlueprint.numSamples = 10000;
+    beaconBlueprint.numSamples = ADC_BUFFER_SIZE * ADC_NUM_BUFFERS;
     beaconBlueprint.resolution = BOARD_RESOLUTION;
     beaconBlueprint.port = BOARD_LISTENING_PORT;
 
@@ -56,10 +51,10 @@ void Network_init()
     sampleTransmissionBlueprint.channels = BOARD_CHANNELS;
     sampleTransmissionBlueprint.frequency = 100000;
     sampleTransmissionBlueprint.v_ref = BOARD_V_REF;
-    sampleTransmissionBlueprint.numSamples = 1000;
+    sampleTransmissionBlueprint.numSamples = SAMPLES_PER_PACKET;
 }
 
-void Network_handleEvents()
+void mNetwork::handleEvents()
 {
     int packetSize = Udp.parsePacket();
     if (packetSize > 0)
@@ -79,7 +74,7 @@ void Network_handleEvents()
     }
 }
 
-void Network_connectWifi()
+void mNetwork::connectWifi()
 {
     int status = WL_IDLE_STATUS;
     while(status != WL_CONNECTED)
@@ -98,7 +93,7 @@ void Network_connectWifi()
     sampleTransmissionBlueprint.uid = beaconBlueprint.uid;
 }
 
-void Network_beginListen()
+void mNetwork::beginListen()
 {
     Udp.begin(BOARD_LISTENING_PORT);
     logTrace("Begin to listen");
@@ -125,17 +120,11 @@ void parsePacket()
     responseTargetPort = command->port;
     responseTargetIp = Udp.remoteIP();
 
-    if(_setTriggerCallback == NULL)
-    {
-        logWarning("No callback is set!");
-        return;
-    }
-
     logDebug("Received valig command. Applying settings...");
-    _setTriggerCallback(command->channel, command->active, command->triggerVoltage);
+    mADC::setTrigger(command->channel, command->active, command->triggerVoltage);
 }
 
-void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
+void mNetwork::sendFragmentedSamples(const uint8_t* samples, uint32_t numSamples)
 {
     logDebug("Transmitting samples...");
     sampleTransmissionBlueprint.transmissionGroupId = (sampleTransmissionBlueprint.transmissionGroupId + 1) % 0x100;
@@ -154,8 +143,8 @@ void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
         Udp.write(&samples[frameId * SAMPLES_PER_PACKET], SAMPLES_PER_PACKET);
         Udp.endPacket();
-        // TODO: consider short delay(xxx) to ensure the previous packet has been dealt with
-        // Could get memory overflow here otherwise
+        delay(50);
+        // TODO: Experiment with this delay. Without the transmission is highly unreliable!
     }
     if(remainder > 0)
     {
