@@ -42,15 +42,16 @@ void Network_init()
     strcpy(beaconBlueprint.adc, BOARD_ADC_DESCRIPTION);
     beaconBlueprint.v_ref = BOARD_V_REF;
     beaconBlueprint.channels = BOARD_CHANNELS;
+    beaconBlueprint.beaconId = 0;
     beaconBlueprint.frequency = 100000;
     beaconBlueprint.numSamples = 10000;
     beaconBlueprint.resolution = BOARD_RESOLUTION;
-    beaconBlueprint.sampleTime = ((float)beaconBlueprint.frequency) / ((float)beaconBlueprint.numSamples);
     beaconBlueprint.port = BOARD_LISTENING_PORT;
 
     sampleTransmissionBlueprint.magicNumber = MAGIC_ID;
     sampleTransmissionBlueprint.frameId = 0;
     sampleTransmissionBlueprint.numFrames = 1;
+    sampleTransmissionBlueprint.transmissionGroupId = 0;
     sampleTransmissionBlueprint.resolution = BOARD_RESOLUTION;
     sampleTransmissionBlueprint.channels = BOARD_CHANNELS;
     sampleTransmissionBlueprint.frequency = 100000;
@@ -89,9 +90,12 @@ void Network_connectWifi()
         status = WiFi.begin(WIFI_SSID, WIFI_SSID_PWD);
     }
     logInfo("Connected to wifi");
-    /*IPAddress ip = WiFi.localIP();
-    Serial.print("IP Address: ");
-    Serial.println(ip);*/
+
+    // MAC is only available after init of WiFi module, which is integrated in WiFi.begin
+    uint8_t mac[6];
+    WiFi.macAddress(mac);
+    beaconBlueprint.uid = (mac[1] << 8) + mac[0];
+    sampleTransmissionBlueprint.uid = beaconBlueprint.uid;
 }
 
 void Network_beginListen()
@@ -102,6 +106,7 @@ void Network_beginListen()
 
 void sendBeacon()
 {
+    beaconBlueprint.beaconId = (beaconBlueprint.beaconId + 1) % 0x100;
     Udp.beginPacket(BROADCAST_IP, BEACON_LISTENING_PORT);
     Udp.write((uint8_t*)&beaconBlueprint, sizeof(BeaconHeader));
     Udp.endPacket();
@@ -118,6 +123,7 @@ void parsePacket()
         return;
     }
     responseTargetPort = command->port;
+    responseTargetIp = Udp.remoteIP();
 
     if(_setTriggerCallback == NULL)
     {
@@ -126,26 +132,25 @@ void parsePacket()
     }
 
     logDebug("Received valig command. Applying settings...");
-    TriggerSettingHeader* triggerSetting = (TriggerSettingHeader*)(command+1);
-    for(uint32_t i=0;i<command->numSettings;i++)
-    {
-        const TriggerSettingHeader ts = triggerSetting[i];
-        _setTriggerCallback(ts.channel, ts.active, ts.triggerVoltage);
-    }
+    _setTriggerCallback(command->channel, command->active, command->triggerVoltage);
 }
 
 void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
 {
     logDebug("Transmitting samples...");
+    sampleTransmissionBlueprint.transmissionGroupId = (sampleTransmissionBlueprint.transmissionGroupId + 1) % 0x100;
     const uint32_t numFullFrames = numSamples / SAMPLES_PER_PACKET;
+    sampleTransmissionBlueprint.numFrames = numFullFrames;
     const uint32_t remainder = numSamples % SAMPLES_PER_PACKET;
     if(remainder > 0)
-        sampleTransmissionBlueprint.numFrames = numFullFrames + 1;
+        sampleTransmissionBlueprint.numFrames++;
 
     for(uint32_t frameId=0;frameId<numFullFrames;frameId++)
     {
+        logTrace("Begin packet");
         Udp.beginPacket(responseTargetIp, responseTargetPort);
         sampleTransmissionBlueprint.frameId = frameId;
+        sampleTransmissionBlueprint.numSamples = SAMPLES_PER_PACKET;
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
         Udp.write(&samples[frameId * SAMPLES_PER_PACKET], SAMPLES_PER_PACKET);
         Udp.endPacket();
@@ -154,8 +159,10 @@ void Network_sendSamples(const uint8_t* samples, uint32_t numSamples)
     }
     if(remainder > 0)
     {
+        logTrace("Begin packet");
         Udp.beginPacket(responseTargetIp, responseTargetPort);
         sampleTransmissionBlueprint.frameId = numFullFrames;
+        sampleTransmissionBlueprint.numSamples = remainder;
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
         Udp.write(&samples[numFullFrames * SAMPLES_PER_PACKET], remainder);
         Udp.endPacket();
