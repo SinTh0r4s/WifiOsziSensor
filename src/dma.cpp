@@ -43,7 +43,7 @@ void initChannel()
 
     // Ensure the channel is disabled
     DMAC->CHCTRLA.bit.ENABLE = DISABLE;
-    // Reselt channel related registers to default
+    // Reset channel related registers to default
     DMAC->CHCTRLA.bit.SWRST = ENABLE;
     // Wait until reset is complete
     while(DMAC->CHCTRLA.bit.SWRST);
@@ -57,7 +57,7 @@ void initChannel()
     DMAC->CHCTRLB.bit.LVL = 0;
 
 
-    // First trigger must be placed manually (TODO: Assumption)
+    // Clear software trigger
     DMAC->SWTRIGCTRL.reg &= (uint32_t)(~(1 << DMA_CHANNEL));
 
 
@@ -189,7 +189,7 @@ void mDMA::init()
     PM->APBBMASK.bit.DMAC_ = ENABLE;
 
     // enable DMA interrupts
-    NVIC_EnableIRQ( DMAC_IRQn ) ;
+    NVIC_EnableIRQ(DMAC_IRQn) ;
 
     // Connect DMA and allocated descriptors
     // These registers can only be written to when CTRL->DMAENABLE is DISABLED
