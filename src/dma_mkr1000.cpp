@@ -8,6 +8,9 @@
 #include "network.h"
 
 
+#ifdef MKR1000
+
+
 const uint8_t ENABLE = 1;
 const uint8_t DISABLE = 0;
 
@@ -234,3 +237,5 @@ uint8_t* mDMA::getLastCompletedBuffer()
     }
     return buffers[getLastCompletedBufferId()];
 }
+
+#endif  // MKR1000

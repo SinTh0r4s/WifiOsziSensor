@@ -1,6 +1,10 @@
 #pragma once
 #include "Arduino.h"
 
+#ifdef ESP32
+    #define LED_BUILTIN 22
+#endif
+
 enum LogLevel : uint8_t
 {
     NONE = 0,

@@ -3,6 +3,12 @@
 #include "debug.h"
 #include "dma.h"
 
+
+
+#ifdef MKR1000
+
+
+
 const uint8_t ENABLE = 1;
 const uint8_t DISABLE = 0;
 
@@ -119,3 +125,5 @@ void mADC::handleEvents()
     }
     
 }
+
+#endif  // MKR1000

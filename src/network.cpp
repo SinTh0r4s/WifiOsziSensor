@@ -1,5 +1,10 @@
 //libs
-#include <WiFi101.h>
+#ifdef ESP32
+    #include <WiFi.h>
+#elif MKR1000
+    #include <WiFi101.h>
+#endif
+
 #include <WiFiUdp.h>
 
 // local includes
