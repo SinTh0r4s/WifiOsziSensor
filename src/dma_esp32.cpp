@@ -1,14 +1,17 @@
-#include "dma.h"
-
-
-
 #ifdef ESP32
 
+
+#include "dma.h"
 
 
 void mDMA::init()
 {
+    
+}
 
+uint8_t* mDMA::getLastCompletedBuffer()
+{
+    return nullptr;
 }
 
 void mDMA::start()
@@ -33,12 +36,7 @@ void mDMA::resume()
 
 void mDMA::handleEvents()
 {
-
-}
-
-uint8_t* mDMA::getLastCompletedBuffer()
-{
-    return nullptr;
+    
 }
 
 

@@ -1,12 +1,11 @@
+#ifdef MKR1000
+
+
+
 #include "adc.h"
 #include "constants.h"
 #include "debug.h"
 #include "dma.h"
-
-
-
-#ifdef MKR1000
-
 
 
 const uint8_t ENABLE = 1;

@@ -1,3 +1,6 @@
+#ifdef MKR1000
+
+
 // libs
 #include <algorithm>
 
@@ -6,9 +9,6 @@
 #include "constants.h"
 #include "debug.h"
 #include "network.h"
-
-
-#ifdef MKR1000
 
 
 const uint8_t ENABLE = 1;
