@@ -15,6 +15,7 @@ int32_t endIdx = 0;
 volatile uint16_t triggerValue = 0;
 volatile bool triggerActive = false;
 bool triggerHit = false;
+const uint32_t MILLION = 1000 * 1000;
 
 
 inline uint16_t transfer16(uint16_t value)
@@ -29,7 +30,7 @@ void mADC::init()
 {
     // HSPI = CS: 15, CLK: 14, MOSI: 13, MISO: 12
     hspi.begin();
-    hspi.beginTransaction(SPISettings(40000000, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
+    hspi.beginTransaction(SPISettings(40 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
     pinMode(15, OUTPUT); // Overwrite hardware CS handling
 
     // Configure ADC

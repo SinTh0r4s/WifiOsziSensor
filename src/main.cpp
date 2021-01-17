@@ -55,11 +55,6 @@ void loop()
 #ifdef MKR1000
     //mNetwork::handleEvents();
 #endif
-    uint32_t t = micros();
-    for(uint32_t i=0;i<10000;i++)
-    {
-        mDMA::handleEvents();
-        mADC::handleEvents();
-    }
-    Serial.println(micros() - t);
+    mDMA::handleEvents();
+    mADC::handleEvents();
 }
