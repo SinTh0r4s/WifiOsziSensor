@@ -10,7 +10,7 @@
 
 SPIClass vspi(VSPI);
 
-uint16_t spi_master_rx_buf[ADC_BUFFER_SIZE];
+uint16_t buffer[ADC_BUFFER_SIZE];
 int32_t idx = 0;
 int32_t endIdx = 0;
 volatile uint16_t triggerValue = 0;
@@ -75,8 +75,8 @@ void mADC::handleEvents()
     }
 
     static uint16_t lastValue = 0;
-    const uint16_t value = transfer16(0x0000);
-    spi_master_rx_buf[idx] = value;
+    const uint16_t value = transfer16(0x0000) & 0xFFF;
+    buffer[idx] = value;
 
     if(triggerActive)
     {
