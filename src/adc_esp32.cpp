@@ -11,6 +11,7 @@
 SPIClass vspi(VSPI);
 
 uint16_t buffer[ADC_BUFFER_SIZE];
+uint16_t copy[ADC_BUFFER_SIZE];
 int32_t idx = 0;
 int32_t endIdx = 0;
 volatile uint16_t triggerValue = 0;
@@ -69,7 +70,12 @@ void mADC::handleEvents()
     {
         if(idx == endIdx)
         {
-            mNetwork::sendFragmentedSamples((uint8_t*)buffer, ADC_BUFFER_SIZE);
+            memcpy(&copy[0], &buffer[endIdx], (ADC_BUFFER_SIZE - endIdx) * sizeof(uint16_t));
+            if(endIdx != 0)
+            {
+                memcpy(&copy[ADC_BUFFER_SIZE - endIdx], &buffer[0], endIdx * sizeof(uint16_t));
+            }
+            mNetwork::sendFragmentedSamples((uint8_t*)copy, ADC_BUFFER_SIZE);
             triggerHit = false;
         }
     }
@@ -82,7 +88,7 @@ void mADC::handleEvents()
     {
         if(lastValue < triggerValue && value >= triggerValue || lastValue > triggerValue && value <= triggerValue)
         {
-            endIdx = (idx - 1) % ADC_BUFFER_SIZE;
+            endIdx = (idx - (ADC_BUFFER_SIZE / 10)) % ADC_BUFFER_SIZE;
             triggerHit = true;
             triggerActive = false;
         }
