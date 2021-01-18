@@ -8,7 +8,7 @@
 #include <SPI.h>
 
 
-SPIClass hspi(HSPI);
+SPIClass vspi(VSPI);
 
 uint16_t spi_master_rx_buf[ADC_BUFFER_SIZE];
 int32_t idx = 0;
@@ -21,18 +21,19 @@ const uint32_t MILLION = 1000 * 1000;
 
 inline uint16_t transfer16(uint16_t value)
 {
-    digitalWrite(15, LOW);
-    const uint16_t retVal = hspi.transfer16(value);
-    digitalWrite(15, HIGH);
+    digitalWrite(BOARD_SPI_CS, LOW);
+    const uint16_t retVal = vspi.transfer16(value);
+    digitalWrite(BOARD_SPI_CS, HIGH);
     return retVal;
 }
 
 void mADC::init()
 {
     // HSPI = CS: 15, CLK: 14, MOSI: 13, MISO: 12
-    hspi.begin();
-    hspi.beginTransaction(SPISettings(40 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
-    pinMode(15, OUTPUT); // Overwrite hardware CS handling
+    // VSPI = CS: 5, CLK: 18, MOSI: 23, MISO: 19
+    vspi.begin();
+    vspi.beginTransaction(SPISettings(8 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
+    pinMode(BOARD_SPI_CS, OUTPUT); // Overwrite hardware CS handling
 
     // Configure ADC
     {
