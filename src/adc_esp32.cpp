@@ -3,13 +3,13 @@
 
 #include "adc.h"
 #include "debug.h"
+#include "constants.h"
 #include <SPI.h>
 
 
 SPIClass hspi(HSPI);
 
-static const uint32_t BUFFER_SIZE = 50000;
-uint16_t spi_master_rx_buf[BUFFER_SIZE];
+uint16_t spi_master_rx_buf[ADC_BUFFER_SIZE];
 int32_t idx = 0;
 int32_t endIdx = 0;
 volatile uint16_t triggerValue = 0;
@@ -80,14 +80,14 @@ void mADC::handleEvents()
     {
         if(lastValue < triggerValue && value >= triggerValue || lastValue > triggerValue && value <= triggerValue)
         {
-            endIdx = (idx - 1) % BUFFER_SIZE;
+            endIdx = (idx - 1) % ADC_BUFFER_SIZE;
             triggerHit = true;
             triggerActive = false;
         }
     }
     lastValue = value;
     idx++;
-    idx %= BUFFER_SIZE;
+    idx %= ADC_BUFFER_SIZE;
 }
 
 

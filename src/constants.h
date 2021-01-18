@@ -13,6 +13,7 @@ static const uint32_t ADC_BUFFER_SIZE = 7000;
 static const uint32_t ADC_NUM_BUFFERS = 3;
 static const uint8_t BOARD_RESOLUTION = 8;
 static const uint32_t BOARD_V_REF = 1650;
+static const uint32_t ADC_FREQUENCY = 100000;
 
 // General settings
 static const uint32_t BOARD_LISTENING_PORT = 7567;
@@ -31,13 +32,13 @@ static const IPAddress BROADCAST_IP = {255, 255, 255, 255};
 
 // Board settings
 static const char* BOARD_DESCRIPTION = "ESP32 DevkitC";
-static const char* BOARD_ADC_DESCRIPTION = "integrated";
+static const char* BOARD_ADC_DESCRIPTION = "MAX11131";
 static const uint8_t BOARD_CHANNELS = 1;
-static const uint32_t DMA_CHANNEL = 0;
-static const uint32_t ADC_BUFFER_SIZE = 7000;
-static const uint32_t ADC_NUM_BUFFERS = 3;
-static const uint8_t BOARD_RESOLUTION = 8;
-static const uint32_t BOARD_V_REF = 1650;
+static const uint32_t ADC_BUFFER_SIZE = 40000;
+static const uint32_t ADC_NUM_BUFFERS = 1;
+static const uint8_t BOARD_RESOLUTION = 12;
+static const uint32_t BOARD_V_REF = 3300;
+static const uint32_t ADC_FREQUENCY = 550000;
 
 // General settings
 static const uint32_t BOARD_LISTENING_PORT = 7567;

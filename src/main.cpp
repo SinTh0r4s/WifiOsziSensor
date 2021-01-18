@@ -4,18 +4,21 @@
 // local includes
 #include "debug.h"
 #include "constants.h"
-//#include "network.h"
+#include "network.h"
 #include "adc.h"
 #include "dma.h"
 
 #ifdef ESP32
 void networkHandleEventTask(void *parameters)
 {
-    // Handle network events
-    //mNetwork::handleEvents();
+    while(true)
+    {
+        // Handle network events
+        mNetwork::handleEvents();
 
-    // Make room for system task for 50ms
-    vTaskDelay(50 / portTICK_PERIOD_MS);
+        // Make room for system task for 50ms
+        vTaskDelay(50 / portTICK_PERIOD_MS);
+    }
 }
 #endif
 
@@ -26,11 +29,11 @@ void setup()
 
     mADC::init();
     mDMA::init();
-    //mNetwork::init();
+    mNetwork::init();
     
     mDMA::start();
-    //mNetwork::connectWifi();
-    //mNetwork::beginListen();
+    mNetwork::connectWifi();
+    mNetwork::beginListen();
 
     endInit();
 
@@ -38,7 +41,7 @@ void setup()
 
 #ifdef ESP32
     TaskHandle_t networkEventsTask;
-    /*xTaskCreatePinnedToCore(
+    xTaskCreatePinnedToCore(
                 networkHandleEventTask,
                 "NetworkEvents",        // Name
                 10000,                  // Stack size
@@ -46,14 +49,13 @@ void setup()
                 1,                      // Priority
                 &networkEventsTask,
                 0);                     // Pin task to core 0
-    */
 #endif
 }
 
 void loop()
 {
 #ifdef MKR1000
-    //mNetwork::handleEvents();
+    mNetwork::handleEvents();
 #endif
     mDMA::handleEvents();
     mADC::handleEvents();

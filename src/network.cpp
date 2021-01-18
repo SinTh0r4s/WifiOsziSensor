@@ -43,7 +43,7 @@ void mNetwork::init()
     beaconBlueprint.v_ref = BOARD_V_REF;
     beaconBlueprint.channels = BOARD_CHANNELS;
     beaconBlueprint.beaconId = 0;
-    beaconBlueprint.frequency = 100000;
+    beaconBlueprint.frequency = ADC_FREQUENCY;
     beaconBlueprint.numSamples = ADC_BUFFER_SIZE * ADC_NUM_BUFFERS;
     beaconBlueprint.resolution = BOARD_RESOLUTION;
     beaconBlueprint.port = BOARD_LISTENING_PORT;
@@ -54,7 +54,7 @@ void mNetwork::init()
     sampleTransmissionBlueprint.transmissionGroupId = 0;
     sampleTransmissionBlueprint.resolution = BOARD_RESOLUTION;
     sampleTransmissionBlueprint.channels = BOARD_CHANNELS;
-    sampleTransmissionBlueprint.frequency = 100000;
+    sampleTransmissionBlueprint.frequency = ADC_FREQUENCY;
     sampleTransmissionBlueprint.v_ref = BOARD_V_REF;
     sampleTransmissionBlueprint.numSamples = SAMPLES_PER_PACKET;
 }
@@ -81,13 +81,20 @@ void mNetwork::handleEvents()
 
 void mNetwork::connectWifi()
 {
-    int status = WL_IDLE_STATUS;
-    while(status != WL_CONNECTED)
+    while(WiFi.status() != WL_CONNECTED)
     {
         logDebug("Attempting to connect to SSID: ");
         logDebug(WIFI_SSID);
         // Connect to WPA/WPA2 network. Change this line if using open or WEP network:
-        status = WiFi.begin(WIFI_SSID, WIFI_SSID_PWD);
+        WiFi.begin(WIFI_SSID, WIFI_SSID_PWD);
+        const uint32_t t = millis();
+        while(millis() - t < 5000)
+        {
+            if(WiFi.status() == WL_CONNECTED)
+            {
+                break;
+            }
+        }
     }
     logInfo("Connected to wifi");
 
