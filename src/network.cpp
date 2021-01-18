@@ -153,7 +153,7 @@ void mNetwork::sendFragmentedSamples(const uint8_t* samples, uint32_t numSamples
         sampleTransmissionBlueprint.frameId = frameId;
         sampleTransmissionBlueprint.numSamples = SAMPLES_PER_PACKET;
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
-        Udp.write(&samples[frameId * SAMPLES_PER_PACKET], SAMPLES_PER_PACKET);
+        Udp.write(&samples[frameId * BYTES_PER_PACKET], BYTES_PER_PACKET);
         Udp.endPacket();
         delay(50);
         // TODO: Experiment with this delay. Without the transmission is highly unreliable!
@@ -165,7 +165,7 @@ void mNetwork::sendFragmentedSamples(const uint8_t* samples, uint32_t numSamples
         sampleTransmissionBlueprint.frameId = numFullFrames;
         sampleTransmissionBlueprint.numSamples = remainder;
         Udp.write((uint8_t*)&sampleTransmissionBlueprint, sizeof(SampleTransmissionHeader));
-        Udp.write(&samples[numFullFrames * SAMPLES_PER_PACKET], remainder);
+        Udp.write(&samples[numFullFrames * BYTES_PER_PACKET], remainder * BYTES_PER_SAMPLE);
         Udp.endPacket();
     }
     logDebug("Samples transmitted.");

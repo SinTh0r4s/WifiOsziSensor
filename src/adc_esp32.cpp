@@ -69,7 +69,7 @@ void mADC::handleEvents()
     {
         if(idx == endIdx)
         {
-            mNetwork::sendFragmentedSamples((uint8_t*)buffer, ADC_BUFFER_SIZE * sizeof(uint16_t));
+            mNetwork::sendFragmentedSamples((uint8_t*)buffer, ADC_BUFFER_SIZE);
             triggerHit = false;
         }
     }
