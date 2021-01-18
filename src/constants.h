@@ -44,7 +44,7 @@ static const uint32_t BYTES_PER_PACKET = 1024;
 static const uint32_t ETHERNET_MAX_BUFFER_SIZE = 1518;
 static const uint16_t MAGIC_ID = 0x7567;
 static const IPAddress BROADCAST_IP = {255, 255, 255, 255};
-static const uint32_t BYTES_PER_SAMPLE = (BOARD_RESOLUTION + 1) / 2;
+static const uint32_t BYTES_PER_SAMPLE = (BOARD_RESOLUTION + 7) / 8;
 static const uint32_t SAMPLES_PER_PACKET = BYTES_PER_PACKET / BYTES_PER_SAMPLE;
 
 
