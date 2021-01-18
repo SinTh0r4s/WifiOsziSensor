@@ -4,6 +4,7 @@
 #include "adc.h"
 #include "debug.h"
 #include "constants.h"
+#include "network.h"
 #include <SPI.h>
 
 
@@ -67,7 +68,7 @@ void mADC::handleEvents()
     {
         if(idx == endIdx)
         {
-            // TODO TX
+            mNetwork::sendFragmentedSamples((uint8_t*)buffer, ADC_BUFFER_SIZE * sizeof(uint16_t));
             triggerHit = false;
         }
     }
@@ -85,6 +86,7 @@ void mADC::handleEvents()
             triggerActive = false;
         }
     }
+
     lastValue = value;
     idx++;
     idx %= ADC_BUFFER_SIZE;
