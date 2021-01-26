@@ -6,6 +6,8 @@
 #include "constants.h"
 #include "network.h"
 #include <SPI.h>
+#include "soc/spi_reg.h"
+#include "soc/spi_struct.h"
 
 
 SPIClass vspi(VSPI);
@@ -22,10 +24,28 @@ const uint32_t MILLION = 1000 * 1000;
 
 inline uint16_t transfer16(uint16_t value)
 {
-    digitalWrite(BOARD_SPI_CS, LOW);
-    const uint16_t retVal = vspi.transfer16(value);
-    digitalWrite(BOARD_SPI_CS, HIGH);
-    return retVal;
+    GPIO.out_w1tc = 0b100000;
+
+    SPI3.data_buf[0] = (value >> 8) | (value << 8);
+    SPI3.cmd.usr = 1;
+    while(SPI3.cmd.usr);
+    const uint16_t retVal = SPI3.data_buf[0];
+
+    GPIO.out_w1ts = 0b100000;
+    return (retVal >> 8) | (retVal << 8);
+}
+
+inline uint16_t transfer16()
+{
+    GPIO.out_w1tc = 0b100000;
+
+    SPI3.data_buf[0] = 0;
+    SPI3.cmd.usr = 1;
+    while(SPI3.cmd.usr);
+    const uint16_t retVal = SPI3.data_buf[0];
+
+    GPIO.out_w1ts = 0b100000;
+    return (retVal >> 8) | (retVal << 8);
 }
 
 void mADC::init()
@@ -33,8 +53,11 @@ void mADC::init()
     // HSPI = CS: 15, CLK: 14, MOSI: 13, MISO: 12
     // VSPI = CS: 5, CLK: 18, MOSI: 23, MISO: 19
     vspi.begin();
-    vspi.beginTransaction(SPISettings(8 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
+    vspi.beginTransaction(SPISettings(40 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
     pinMode(BOARD_SPI_CS, OUTPUT); // Overwrite hardware CS handling
+
+    SPI3.mosi_dlen.usr_mosi_dbitlen = 15;
+    SPI3.miso_dlen.usr_miso_dbitlen = 15;
 
     // Configure ADC
     {
@@ -81,7 +104,7 @@ void mADC::handleEvents()
     }
 
     static uint16_t lastValue = 0;
-    const uint16_t value = transfer16(0x0000) & 0xFFF;
+    const uint16_t value = transfer16() & 0xFFF;
     buffer[idx] = value;
 
     if(triggerActive)
