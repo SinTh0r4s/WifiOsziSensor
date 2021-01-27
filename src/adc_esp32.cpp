@@ -53,7 +53,7 @@ void mADC::init()
     // HSPI = CS: 15, CLK: 14, MOSI: 13, MISO: 12
     // VSPI = CS: 5, CLK: 18, MOSI: 23, MISO: 19
     vspi.begin();
-    vspi.beginTransaction(SPISettings(40 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
+    vspi.beginTransaction(SPISettings(20 * MILLION, MSBFIRST, SPI_MODE3));  // SPI_MASTER_FREQ_40M
     pinMode(BOARD_SPI_CS, OUTPUT); // Overwrite hardware CS handling
 
     SPI3.mosi_dlen.usr_mosi_dbitlen = 15;
