@@ -27,7 +27,7 @@ static const uint32_t ADC_BUFFER_SIZE = 10000;
 static const uint32_t ADC_NUM_BUFFERS = 1;
 static const uint8_t BOARD_RESOLUTION = 12;
 static const uint32_t BOARD_V_REF = 3300;
-static const uint32_t ADC_FREQUENCY = 550000;
+static const uint32_t ADC_FREQUENCY = 580000;
 static const uint32_t BOARD_SPI_CS = 5;
 
 #endif
