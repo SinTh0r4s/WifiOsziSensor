@@ -57,14 +57,14 @@ breakout board. A 10uF capacitor paired with a 100nF capacitor worked amazingly 
 |    23 | H3/DIN      | SPI MOSI |
 
 
-### DEVELOPMENT
+### SOFTWARE SETUP
 
 The code in this repository was developed with PlatformIO and this segment will help you to set up the development
 environment. How to set up PlatformIO is well documented online. Please do so and continue here.
 
 - Clone this repository and open the repository as folder in PlatformIO.
 
-- Unkomment the WiFi access parameters in secrets.h and adjust the values to your WiFi. In case you forget this step,
+- Unkomment the WiFi access parameters in *src/secrets.h* and adjust the values to your WiFi. In case you forget this step,
 the build process will fail and tell you to do so.
 
 - Connect an ESP32 or Arduino MKR1000 via USB to your computer.
