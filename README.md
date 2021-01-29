@@ -49,17 +49,24 @@ Further, the ESP32 and especially its onboard WiFi introduce a lot(!) of noise o
 used as analog reference as well as power, i reccomend to provide a capacitor (or multiple) on H3/AREF+ and H3/GND on the
 breakout board. A 1uF capacitor paired with a 1nF capacitor worked amazingly well in lab trials. CHECK VALUES!
 
+Test
+| header 1 | header 2 | header 3 |
+| ---      |  ------  |----------|
+| cell 1   | cell 2   | cell 3   |
+| cell 4 | cell 5 is longer | cell 6 is much longer than the others, but that's ok. It eventually wraps the text when the cell is too large for the display size. |
+| cell 7   |          | cell 9   |
+
 Wiring table
-|ESP32|MAX11131BOB|use|
-| --- | --------- | --- |
-|     | H1/AIN3   | Default ADC input |
-| 3.3V| H3/REF+   | Analog reference input |
-| 3.3V| H3/VDD    | Power supply |
-| GND | H2/GND    | Ground |
-|   5 | H3/CS     | SPI CS |
-|  18 | H3/SCLK   | SPI SCLK | 
-|  19 | H4/DOUT   | SPI MISO |
-|  23 | H3/DIN    | SPI MOSI |
+| ESP32 | MAX11131BOB | Use |
+|   --- | ---------   | --- |
+|     - | H1/AIN3     | Default ADC input |
+|   3.3V| H3/REF+     | Analog reference input |
+|   3.3V| H3/VDD      | Power supply |
+|   GND | H2/GND      | Ground |
+|     5 | H3/CS       | SPI CS |
+|    18 | H3/SCLK     | SPI SCLK | 
+|    19 | H4/DOUT     | SPI MISO |
+|    23 | H3/DIN      | SPI MOSI |
 
 ### DEVELOPMENT
 
