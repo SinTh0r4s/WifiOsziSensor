@@ -20,15 +20,6 @@ only deleted once the application is closed. So you can try multiple measurement
 I hope this gadget will save someone some time.
 
 
-### SETUP
-
-Setup a WiFi hotspot with the access parameters you provided to the microcontroller.
-
-Connect the microcontroller to 3.3V, GND and sensor line (default A3 on Arduino MKR1000 and AIN3 on ESP+MAX11131).
-
-Fire up everything and wait for the microcontroller to show up in the GUI.
-
-
 ### HARDWARE SETUP
 
 Skip this step for the Arduino MKR1000, since the integrated ADC is used.
@@ -78,12 +69,26 @@ the build process will fail and tell you to do so.
 
 - Connect an ESP32 or Arduino MKR1000 via USB to your computer.
 
+- Check the file 'platformio.ini'. It contains src_build_flags. The flag -DSERIAL_DEBUG will set the SERIAL_DEBUG define
+and force the Arduino MKR 1000 to wait for a serial connection before it can finish up initialization. If this flag is not
+set: every serial debug call is removed and the serial interface is not initialized. If you are looking to measure something
+you should remove this flag!
+
 - Start the upload process. PlatformIO will choose the correct configuration automatically.
+
+
+### MEASUREMENT SETUP
+
+Setup a WiFi hotspot with the access parameters you provided to the microcontroller.
+
+Connect the microcontroller to 3.3V, GND and sensor line (default A3 on Arduino MKR1000 and AIN3 on ESP+MAX11131).
+
+Fire up everything and wait for the microcontroller to show up in the GUI.
 
 
 ### KNOWN ISSUE
 
-**ESP32/MAX11131BOB** There is still something which will stop execution on CORE1 ever so briefly and result in a skip of ~10 measurements.
+**ESP32/MAX11131BOB** - There is still something which will stop execution on CORE1 ever so briefly and result in a skip of ~10 measurements.
 This happens roughly once per 10k measurements/once per plot. It is highly unlikely for this interrupt to meaningfully
 distort any measurements, but when in doublt measure again. I guess there is still some RTOS or WiFi functionality left
 on CORE1.
