@@ -86,9 +86,11 @@ Connect the microcontroller to 3.3V, GND and sensor line (default A3 on Arduino 
 Fire up everything and wait for the microcontroller to show up in the GUI.
 
 
-### KNOWN ISSUE
+### KNOWN ISSUES
 
-**ESP32/MAX11131BOB** - There is still something which will stop execution on CORE1 ever so briefly and result in a skip of ~10 measurements.
-This happens roughly once per 10k measurements/once per plot. It is highly unlikely for this interrupt to meaningfully
-distort any measurements, but when in doublt measure again. I guess there is still some RTOS or WiFi functionality left
-on CORE1.
+**ESP32/MAX11131BOB** - There is still something which will stop execution on CORE1 ever so briefly and result in a skip
+of ~10 measurements. This happens roughly once per 10k measurements/once per plot. It is highly unlikely for this interrupt
+to meaningfully distort any measurements, but when in doublt measure again. I guess there is still some RTOS or WiFi
+functionality left on CORE1.
+
+**BOTH** - Multi Channel Mode is mostly implemented, but not finished and also not tested. It will not run without some debugging.
