@@ -50,6 +50,7 @@ used as analog reference as well as power, i reccomend to provide a capacitor (o
 breakout board. A 1uF capacitor paired with a 1nF capacitor worked amazingly well in lab trials. CHECK VALUES!
 
 Test
+
 | header 1 | header 2 | header 3 |
 | ---      |  ------  |----------|
 | cell 1   | cell 2   | cell 3   |
@@ -57,8 +58,9 @@ Test
 | cell 7   |          | cell 9   |
 
 Wiring table
+
 | ESP32 | MAX11131BOB | Use |
-|   --- | ---------   | --- |
+|  :--- | :---------  | :--- |
 |     - | H1/AIN3     | Default ADC input |
 |   3.3V| H3/REF+     | Analog reference input |
 |   3.3V| H3/VDD      | Power supply |
