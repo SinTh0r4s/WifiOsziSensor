@@ -40,7 +40,7 @@ requirements are satisfied with a lower frequency you have to adjust the SPI fre
 
 Further, the ESP32 and especially its onboard WiFi introduce a lot(!) of noise on the 3.3V line. Since this line is
 used as analog reference as well as power, i reccomend to provide a capacitor (or multiple) on H3/AREF+ and H3/GND on the
-breakout board. A 1uF capacitor paired with a 1nF capacitor worked amazingly well in lab trials. CHECK VALUES!
+breakout board. A 10uF capacitor paired with a 100nF capacitor worked amazingly well in lab trials.
 
 
 ### Wiring table
