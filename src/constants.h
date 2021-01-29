@@ -1,6 +1,11 @@
 #pragma once
 
 #include "Arduino.h"
+#ifdef ESP32
+    #include <WiFi.h>
+#elif MKR1000
+    #include <WiFi101.h>
+#endif
 
 #ifdef MKR1000
 

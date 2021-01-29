@@ -1,13 +1,15 @@
 #ifdef ESP32
 
+// libs
+#include <SPI.h>
+#include "soc/spi_reg.h"
+#include "soc/spi_struct.h"
 
+// local includes
 #include "adc.h"
 #include "debug.h"
 #include "constants.h"
 #include "network.h"
-#include <SPI.h>
-#include "soc/spi_reg.h"
-#include "soc/spi_struct.h"
 
 
 SPIClass vspi(VSPI);

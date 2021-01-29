@@ -1,7 +1,7 @@
 #ifdef MKR1000
 
 
-
+// local includes
 #include "adc.h"
 #include "constants.h"
 #include "debug.h"
