@@ -19,6 +19,7 @@ On the right hand side you can select all the measurement sets you received from
 only deleted once the application is closed. So you can try multiple measurements and only export the one of interest.
 I hope this gadget will save someone some time.
 
+
 ### SETUP
 
 Setup a WiFi hotspot with the access parameters you provided to the microcontroller.
@@ -26,6 +27,7 @@ Setup a WiFi hotspot with the access parameters you provided to the microcontrol
 Connect the microcontroller to 3.3V, GND and sensor line (default A3 on Arduino MKR1000 and AIN3 on ESP+MAX11131).
 
 Fire up everything and wait for the microcontroller to show up in the GUI.
+
 
 ### HARDWARE SETUP
 
@@ -49,18 +51,11 @@ Further, the ESP32 and especially its onboard WiFi introduce a lot(!) of noise o
 used as analog reference as well as power, i reccomend to provide a capacitor (or multiple) on H3/AREF+ and H3/GND on the
 breakout board. A 1uF capacitor paired with a 1nF capacitor worked amazingly well in lab trials. CHECK VALUES!
 
-Test
 
-| header 1 | header 2 | header 3 |
-| ---      |  ------  |----------|
-| cell 1   | cell 2   | cell 3   |
-| cell 4 | cell 5 is longer | cell 6 is much longer than the others, but that's ok. It eventually wraps the text when the cell is too large for the display size. |
-| cell 7   |          | cell 9   |
-
-Wiring table
+### Wiring table
 
 | ESP32 | MAX11131BOB | Use |
-|  :--- | :---------  | :--- |
+|   --- |  ---------  |  --- |
 |     - | H1/AIN3     | Default ADC input |
 |   3.3V| H3/REF+     | Analog reference input |
 |   3.3V| H3/VDD      | Power supply |
@@ -70,16 +65,25 @@ Wiring table
 |    19 | H4/DOUT     | SPI MISO |
 |    23 | H3/DIN      | SPI MOSI |
 
+
 ### DEVELOPMENT
 
 The code in this repository was developed with PlatformIO and this segment will help you to set up the development
 environment. How to set up PlatformIO is well documented online. Please do so and continue here.
 
-Clone this repository and open the repository as folder in PlatformIO.
+- Clone this repository and open the repository as folder in PlatformIO.
 
-Unkomment the WiFi access parameters in secrets.h and adjust the values to your WiFi. In case you forget this step,
+- Unkomment the WiFi access parameters in secrets.h and adjust the values to your WiFi. In case you forget this step,
 the build process will fail and tell you to do so.
 
-Connect an ESP32 or Arduino MKR1000 via USB to your computer.
+- Connect an ESP32 or Arduino MKR1000 via USB to your computer.
 
-Start the upload process. PlatformIO will choose the correct configuration automatically.
+- Start the upload process. PlatformIO will choose the correct configuration automatically.
+
+
+### KNOWN ISSUE
+
+**ESP32/MAX11131BOB** There is still something which will stop execution on CORE1 ever so briefly and result in a skip of ~10 measurements.
+This happens roughly once per 10k measurements/once per plot. It is highly unlikely for this interrupt to meaningfully
+distort any measurements, but when in doublt measure again. I guess there is still some RTOS or WiFi functionality left
+on CORE1.
