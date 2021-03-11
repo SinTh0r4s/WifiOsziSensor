@@ -5,7 +5,7 @@
 This repository provides the code for the PC Frontend of the WifiOszo PRoject. This project is intended to provide
 basic oscilloscope access to unknown GND potentials without the risk of destroying a 20k gadget.
 
-![Application screenshot](https://gitlab.lrz.de/wifioszi/pyplotter/-/raw/screenshot/docs/screenshot.png?inline=false)
+![Application screenshot](screenshot.png)
 
 Any board will announce itself automatically to the application and will appear as possibility in the board selector
 on the top left. The rest of the application will always referrence to the selected board. Any board will also announce
